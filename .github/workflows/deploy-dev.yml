@@ -9,27 +9,34 @@ jobs:
   tests:
     name: Run Tests
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-php@v4
+      - uses: actions/checkout@v4                                         # checkout primero :contentReference[oaicite:8]{index=8}
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2                                    # versión válida :contentReference[oaicite:9]{index=9}
         with:
           php-version: '8.2'
-          extensions: mbstring, bcmath, sqlite, exif, pcntl
+          extensions: mbstring, bcmath, sqlite, exif, pcntl               # extensiones recomendadas para Laravel :contentReference[oaicite:10]{index=10}
+
       - name: Install Dependencies
         run: composer install --prefer-dist --no-progress --optimize-autoloader
+
       - name: Prepare .env & Key
         run: |
           cp .env.example .env
           php artisan key:generate
+
       - name: Setup SQLite
         run: |
           mkdir -p database
           touch database/database.sqlite
+
       - name: Run Migrations
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
         run: php artisan migrate --force
+
       - name: Run Tests
         env:
           DB_CONNECTION: sqlite
@@ -40,13 +47,11 @@ jobs:
     name: Deploy to Dev Server
     needs: tests
     runs-on: ubuntu-latest
+
     if: ${{ success() }}
     steps:
-      - uses: actions/checkout@v4
-      # aquí pon tus pasos de deploy, p.ej. rsync, scp, FTP, o un Action de tu cloud.
+      - uses: actions/checkout@v4                                      # vuelve a hacer checkout antes de deploy :contentReference[oaicite:11]{index=11}
       - name: Deploy to Dev
         run: |
           echo "Desplegando a DEV..."
-          # scp -r ./ user@dev.server:/ruta/app
-
-
+          # Aquí tu rsync/scp/acción de cloud
